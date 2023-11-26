@@ -15,8 +15,8 @@ async function fetchAndStoreMovieDetails(startId, endId) {
 
         // 영화 정보를 'movies' 테이블에 삽입
         const insertMovieQuery = `
-          INSERT INTO movies (id, adult, backdrop_path, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, title, video, vote_average, vote_count) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+          INSERT INTO movies (id, adult, backdrop_path, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, title, video, vote_average, vote_count, director_name, director_profile_path) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         await connection.execute(insertMovieQuery, [
           movie.id,
           movie.adult,
@@ -34,6 +34,8 @@ async function fetchAndStoreMovieDetails(startId, endId) {
           movie.video,
           movie.vote_average,
           movie.vote_count,
+          directorInfo.name,
+          TMDB_IMAGE_BASE_URL + directorInfo.profile_path,
         ]);
 
         // 장르 정보 처리 및 삽입
