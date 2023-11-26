@@ -4,9 +4,10 @@ const fetchAndStoreTVShowDetails = require("./tvshowService");
 
 // 메인 로직을 여기서 구성합니다.
 async function main() {
-  await fetchAndStoreMovieDetails(1, 200000);
-  await fetchAndStoreTVShowDetails(1, 200000);
-  // 여기에 다른 배치 작업을 추가할 수 있습니다.
+  for (let i = 0; i < 300000; i += 10000) {
+    await fetchAndStoreTVShowDetails(1, i + 10000);
+    await fetchAndStoreMovieDetails(i, i + 10000);
+  }
 }
 
 main().catch(console.error);

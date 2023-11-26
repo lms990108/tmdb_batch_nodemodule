@@ -14,6 +14,14 @@ async function fetchAndStoreTVShowDetails(startId, endId) {
         const detailsResponse = await axios.get(detailsUrl);
         const tvShow = detailsResponse.data;
 
+        // 감독 정보 추출 (created_by 배열의 첫 번째 요소)
+        const director = tvShow.created_by && tvShow.created_by[0];
+        const directorName = director ? director.name : null;
+        const directorProfilePath =
+          director && director.profile_path
+            ? TMDB_IMAGE_BASE_URL + director.profile_path
+            : null;
+
         const firstAirDate = tvShow.first_air_date
           ? new Date(tvShow.first_air_date)
           : null;
@@ -25,31 +33,34 @@ async function fetchAndStoreTVShowDetails(startId, endId) {
           firstAirDate && !isNaN(firstAirDate.getTime());
         const isValidLastAirDate = lastAirDate && !isNaN(lastAirDate.getTime());
 
-        // TV 쇼 정보를 'tvshows' 테이블에 삽입
+        // TV 쇼 정보 삽입 쿼리
         const insertTVShowQuery = `
           INSERT INTO tvshows (
             id, adult, backdrop_path, first_air_date, last_air_date, name, 
             number_of_episodes, number_of_seasons, overview, popularity, 
-            poster_path, type, vote_average, vote_count
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            poster_path, type, vote_average, vote_count, director_name, director_profile_path
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         await connection.execute(insertTVShowQuery, [
           tvShow.id,
           tvShow.adult,
-          TMDB_IMAGE_BASE_URL + tvShow.backdrop_path,
-          isValidFirstAirDate ? firstAirDate : null,
-          isValidLastAirDate ? lastAirDate : null,
+          tvShow.backdrop_path
+            ? TMDB_IMAGE_BASE_URL + tvShow.backdrop_path
+            : null,
+          tvShow.first_air_date,
+          tvShow.last_air_date,
           tvShow.name,
           tvShow.number_of_episodes,
           tvShow.number_of_seasons,
           tvShow.overview,
           tvShow.popularity,
-          TMDB_IMAGE_BASE_URL + tvShow.poster_path,
+          tvShow.poster_path ? TMDB_IMAGE_BASE_URL + tvShow.poster_path : null,
           tvShow.type,
           tvShow.vote_average,
           tvShow.vote_count,
+          directorName,
+          directorProfilePath,
         ]);
-
         const genres = tvShow.genres;
         for (const genre of genres) {
           // 장르 데이터가 genres 테이블에 존재하는지 확인하고, 없다면 삽입
