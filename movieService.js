@@ -12,6 +12,9 @@ async function fetchAndStoreMovieDetails(startId, endId) {
         const url = `https://api.themoviedb.org/3/movie/${movieId}?append_to_response=videos,credits&api_key=${TMDB_API_KEY}&language=ko-KR`;
         const response = await axios.get(url);
         const movie = response.data;
+        const directorInfo = movie.credits.crew.find(
+          (person) => person.job === "Director"
+        );
 
         // 영화 정보를 'movies' 테이블에 삽입
         const insertMovieQuery = `
