@@ -90,7 +90,9 @@ async function fetchAndStoreTVShowDetails(startId, endId) {
           await connection.execute(insertActorQuery, [
             actor.id,
             actor.name,
-            TMDB_IMAGE_BASE_URL + actor.profile_path,
+            actor.profile_path
+              ? TMDB_IMAGE_BASE_URL + actor.profile_path
+              : null,
           ]);
 
           // 'tvshow_actor' 테이블에 TV 쇼와 배우의 관계 삽입
