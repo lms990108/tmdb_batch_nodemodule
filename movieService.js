@@ -12,6 +12,14 @@ async function fetchAndStoreMovieDetails(startId, endId) {
         const url = `https://api.themoviedb.org/3/movie/${movieId}?append_to_response=videos,credits&api_key=${TMDB_API_KEY}&language=ko-KR`;
         const response = await axios.get(url);
         const movie = response.data;
+
+        const backdropPath = movie.backdrop_path
+          ? TMDB_IMAGE_BASE_URL + movie.backdrop_path
+          : null;
+        const posterPath = movie.poster_path
+          ? TMDB_IMAGE_BASE_URL + movie.poster_path
+          : null;
+
         const directorInfo = movie.credits.crew.find(
           (person) => person.job === "Director"
         );
@@ -23,13 +31,13 @@ async function fetchAndStoreMovieDetails(startId, endId) {
         await connection.execute(insertMovieQuery, [
           movie.id,
           movie.adult,
-          TMDB_IMAGE_BASE_URL + movie.backdrop_path,
+          backdropPath,
           movie.imdb_id,
           movie.original_language,
           movie.original_title,
           movie.overview,
           movie.popularity,
-          TMDB_IMAGE_BASE_URL + movie.poster_path,
+          posterPath,
           movie.release_date,
           movie.revenue,
           movie.runtime,
@@ -37,7 +45,7 @@ async function fetchAndStoreMovieDetails(startId, endId) {
           movie.video,
           movie.vote_average,
           movie.vote_count,
-          directorInfo.name,
+          directorInfo ? directorInfo.name : null,
           TMDB_IMAGE_BASE_URL + directorInfo.profile_path,
         ]);
 
@@ -59,13 +67,16 @@ async function fetchAndStoreMovieDetails(startId, endId) {
         // 배우 정보 처리 및 삽입
         const cast = movie.credits.cast;
         for (const actor of cast) {
+          const actorProfilePath = actor.profile_path
+            ? TMDB_IMAGE_BASE_URL + actor.profile_path
+            : null;
           const insertActorQuery = `
             INSERT INTO actors (id, name, profile_path) VALUES (?, ?, ?)
             ON DUPLICATE KEY UPDATE name = name, profile_path = profile_path;`;
           await connection.execute(insertActorQuery, [
             actor.id,
             actor.name,
-            TMDB_IMAGE_BASE_URL + actor.profile_path,
+            actorProfilePath,
           ]);
 
           // movie_actor 테이블에 관계 삽입
