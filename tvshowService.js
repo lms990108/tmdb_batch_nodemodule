@@ -117,17 +117,17 @@ async function fetchAndStoreTVShowDetails(startId, endId) {
         }
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          console.error(`TV Show ID ${tvShowId} not found.`);
+          // console.error(`TV Show ID ${tvShowId} not found.`);
         } else {
-          console.error(
-            `Error fetching TV Show ID ${tvShowId}:`,
-            error.message
-          );
+          // console.error(
+          //   `Error fetching TV Show ID ${tvShowId}:`,
+          //   error.message
+          // );
         }
       }
     }
   } catch (dbError) {
-    console.error("Database operation failed:", dbError);
+    // console.error("Database operation failed:", dbError);
   } finally {
     await connection.end();
   }
