@@ -1,10 +1,12 @@
 const axios = require("axios");
+const logger = require("./logger");
 const connectToDatabase = require("./database");
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
 async function fetchAndStoreMovieDetails(startId, endId) {
   const connection = await connectToDatabase();
+
   try {
     for (let movieId = startId; movieId <= endId; movieId++) {
       try {
@@ -99,16 +101,18 @@ async function fetchAndStoreMovieDetails(startId, endId) {
             video.type,
           ]);
         }
+
+        logger.info(`Successfully processed movie ID ${movieId}`);
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          // console.error(`Movie ID ${movieId} not found.`);
+          logger.error(`Movie ID ${movieId} not found.`);
         } else {
-          // console.error(`Error fetching movie ID ${movieId}:`, error.message);
+          logger.error(`Error fetching movie ID ${movieId}: ${error.message}`);
         }
       }
     }
   } catch (dbError) {
-    // console.error("Database operation failed:", dbError);
+    logger.error("Database operation failed: " + dbError.message);
   } finally {
     await connection.end();
   }

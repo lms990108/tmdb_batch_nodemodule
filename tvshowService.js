@@ -1,4 +1,5 @@
 const axios = require("axios");
+const logger = require("./logger");
 const connectToDatabase = require("./database");
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
@@ -115,19 +116,18 @@ async function fetchAndStoreTVShowDetails(startId, endId) {
             video.type,
           ]);
         }
+
+        logger.info(`Successfully processed TV Show ID ${tvShowId}`);
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          // console.error(`TV Show ID ${tvShowId} not found.`);
+          logger.error(`TV Show ID ${tvShowId} not found.`);
         } else {
-          // console.error(
-          //   `Error fetching TV Show ID ${tvShowId}:`,
-          //   error.message
-          // );
+          logger.error(`Error fetching TV Show ID ${tvShowId}:`, error.message);
         }
       }
     }
   } catch (dbError) {
-    // console.error("Database operation failed:", dbError);
+    logger.error("Database operation failed:", dbError);
   } finally {
     await connection.end();
   }
