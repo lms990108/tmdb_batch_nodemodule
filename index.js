@@ -1,21 +1,33 @@
 require("dotenv").config();
-const fetchAndStoreMovieDetails = require("./movieService");
-const fetchAndStoreTVShowDetails = require("./tvshowService");
+const { processMoviesByYear } = require("./movieService");
+const { processTVShowsByYear } = require("./tvshowService");
+const connectToDatabase = require("./database.js");
 const logger = require("./logger");
 
 async function main() {
-  for (let i = 0; i < 1000000; i += 1000) {
-    try {
-      logger.info(`Processing TV shows for range ${i} - ${i + 999}`);
-      await fetchAndStoreTVShowDetails(i, i + 999);
+  const startYear = 2023; // 시작 연도 설정
+  const endYear = 1970; // 종료 연도 설정
 
-      logger.info(`Processing movies for range ${i} - ${i + 999}`);
-      await fetchAndStoreMovieDetails(i, i + 999);
-    } catch (error) {
-      logger.error(`Error in main loop: ${error.message}`);
+  try {
+    const connection = await connectToDatabase();
+
+    for (let year = startYear; year >= endYear; year--) {
+      logger.info(`Processing movies for year ${year}`);
+      await processMoviesByYear(year, connection);
+
+      logger.info(`Processing TV shows for year ${year}`);
+      await processTVShowsByYear(year, connection);
     }
+
+    await connection.end();
+  } catch (error) {
+    logger.error(`Error in main function: ${error.message}`);
   }
 }
+
+main().catch((error) => {
+  logger.error(`Fatal error in main function: ${error.message}`);
+});
 
 main().catch((error) => {
   logger.error(`Fatal error in main function: ${error.message}`);
