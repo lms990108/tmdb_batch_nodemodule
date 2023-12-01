@@ -1,6 +1,7 @@
 require("dotenv").config();
-const { processMoviesByYearRange } = require("./movieService");
-const { processTVShowsByYearRange } = require("./tvshowService");
+const { processMoviesByYear } = require("./movieService");
+const { processTVShowsByYear } = require("./tvshowService");
+const connectToDatabase = require("./database.js");
 const logger = require("./logger");
 
 async function main() {

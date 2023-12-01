@@ -35,6 +35,13 @@ async function fetchAndStoreMovieDetails(movieId, connection) {
       (person) => person.job === "Director"
     );
 
+    // directorInfo 객체가 존재하는지 확인하고, 해당 속성들을 안전하게 추출
+    const directorName = directorInfo ? directorInfo.name : null;
+    const directorProfilePath =
+      directorInfo && directorInfo.profile_path
+        ? TMDB_IMAGE_BASE_URL + directorInfo.profile_path
+        : null;
+
     // 영화 정보를 'movies' 테이블에 삽입
     const insertMovieQuery = `
       INSERT INTO movies (id, adult, backdrop_path, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, title, video, vote_average, vote_count, director_name, director_profile_path) 
@@ -56,8 +63,8 @@ async function fetchAndStoreMovieDetails(movieId, connection) {
       movie.video,
       movie.vote_average,
       movie.vote_count,
-      directorInfo ? directorInfo.name : null,
-      TMDB_IMAGE_BASE_URL + directorInfo.profile_path,
+      directorName,
+      directorProfilePath,
     ]);
 
     // 장르 정보 처리 및 삽입
